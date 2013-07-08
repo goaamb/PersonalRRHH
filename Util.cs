@@ -43,6 +43,7 @@ using System.Data.OleDb;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
 using stdole;
+using MySql.Data.MySqlClient;
 
 // Raw image data type.
 public struct TRawImage 
@@ -324,7 +325,7 @@ public class Util
 	public int Identify(ref int score) {
 		GRConstants result;
 		int id;
-		OleDbDataReader rs;
+        MySqlDataReader rs;
 		TTemplate tptRef;
 
 		// Checking if template is valid.

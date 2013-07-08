@@ -41,6 +41,8 @@ using System.Data;
 using System.Data.OleDb;
 using GrFingerXLib;
 using System.Runtime.InteropServices;
+using System.Data.Odbc;
+using MySql.Data.MySqlClient;
 
 // the template class
 public class TTemplate
@@ -64,14 +66,14 @@ public class DBClass{
     public string field = "huella";
 
 	// the connection object
-	private OleDbConnection _connection;
+    private MySqlConnection _connection;
 
 	// temporary template for retrieving data from DB
 	private TTemplate tptBlob;
 	
 	// the database we'll be connecting to
 	//public readonly string CONNECTION_STRING = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=..\\DB\\GrFingerSample.mdb";
-    public readonly string CONNECTION_STRING = "Provider=OleMySql.MySqlSource.1;Data Source=localhost;User ID=root;Initial Catalog=panchita_proceso";
+    public readonly string CONNECTION_STRING = "Database=panchita_proceso;Data Source=localhost;User Id=root;";
 	
 	public DBClass(){
 	}
@@ -79,8 +81,7 @@ public class DBClass{
 	// Open connection
 	public bool openDB()
 	{
-		_connection = new OleDbConnection();
-		_connection.ConnectionString = CONNECTION_STRING;
+        _connection = new MySqlConnection(CONNECTION_STRING);
 		try{
 			_connection.Open();
 		}
@@ -102,8 +103,8 @@ public class DBClass{
 	// Clear database
 	public bool clearDB()
 	{
-		OleDbCommand cmdClear = null;
-		cmdClear = new OleDbCommand("DELETE FROM "+table, _connection);
+        MySqlCommand cmdClear = null;
+        cmdClear = new MySqlCommand("DELETE FROM " + table, _connection);
 
 		// run "clear" query
 		if(_connection.State == ConnectionState.Open)
@@ -116,25 +117,23 @@ public class DBClass{
 	// Add template to database. Returns added template ID.
 	public bool addTemplate(TTemplate tpt,ref int id) 
 	{
-		OleDbCommand cmdInsert = null;
-		OleDbParameter dbParamInsert = null; 
-		OleDbCommand cmdSelect =  null;
+        MySqlCommand cmdInsert = null;
+        MySqlCommand cmdSelect = null;
 
 		try{
 			// Create SQL command containing ? parameter for BLOB.
-			cmdInsert = new OleDbCommand("INSERT INTO "+table+"("+field+") values(?) ", _connection);
+            cmdInsert = new MySqlCommand("INSERT INTO " + table + "(" + field + ") values(?field) ", _connection);
 			// Create parameter for ? contained in the SQL statement.
 			System.Byte [] temp = new System.Byte[tpt._size + 1];
 			System.Array.Copy(tpt._tpt, 0, temp, 0, tpt._size);
-
-			dbParamInsert = new OleDbParameter("@"+field, OleDbType.VarBinary, tpt._size, 
-							ParameterDirection.Input, false, 0, 0,"ID", 
-							DataRowVersion.Current, temp);
-			cmdInsert.Parameters.Add(dbParamInsert);
-
+            cmdInsert.Parameters.AddWithValue("?field", temp);
+            
 			//execute query
-			if(_connection.State == ConnectionState.Open)
-				cmdInsert.ExecuteNonQuery();
+            if (_connection.State == ConnectionState.Open)
+            {
+                cmdInsert.Prepare();
+                cmdInsert.ExecuteNonQuery();
+            }
 		}
 		catch{
 			return false;
@@ -142,7 +141,7 @@ public class DBClass{
 
 		try{
 			// Create SQL command containing ? parameter for BLOB.
-			cmdSelect = new OleDbCommand("SELECT top 1 ID FROM "+table+" ORDER BY ID DESC", _connection);
+            cmdSelect = new MySqlCommand("SELECT ID FROM " + table + " ORDER BY ID DESC limit 1", _connection);
 		    
 			id = System.Convert.ToInt32(cmdSelect.ExecuteScalar());
 		}
@@ -154,13 +153,13 @@ public class DBClass{
 	}
 
 	// Returns an OleDbDataReader with all enrolled templates from database.
-	public OleDbDataReader  getTemplates()
+	public MySqlDataReader  getTemplates()
 	{
-		OleDbCommand  cmdGetTemplates;
-		OleDbDataReader  rs;
+        MySqlCommand cmdGetTemplates;
+        MySqlDataReader rs;
 
 		//setting up command 
-		cmdGetTemplates =  new OleDbCommand("SELECT * FROM "+table, _connection);
+        cmdGetTemplates = new MySqlCommand("SELECT * FROM " + table, _connection);
 		rs = cmdGetTemplates.ExecuteReader();
 
 		return rs;
@@ -170,12 +169,12 @@ public class DBClass{
 	// Returns template with the supplied ID.
 	public TTemplate getTemplate(int id)
 	{
-		OleDbCommand cmd = null;
-		OleDbDataReader dr = null;
+		MySqlCommand cmd = null;
+        MySqlDataReader dr = null;
 		tptBlob._size = 0;
 		try
 		{
-			cmd =  new OleDbCommand(System.String.Concat("SELECT * FROM "+table+" WHERE ID = ", System.Convert.ToString((int)id)), _connection);
+            cmd = new MySqlCommand(System.String.Concat("SELECT * FROM " + table + " WHERE ID = ", System.Convert.ToString((int)id)), _connection);
 			dr = cmd.ExecuteReader();
 			// Get query response
 			dr.Read();
@@ -189,7 +188,7 @@ public class DBClass{
 	}
 
 	// Return template data from an OleDbDataReader
-	public TTemplate getTemplate(OleDbDataReader rs)
+    public TTemplate getTemplate(MySqlDataReader rs)
 	{
 		long readedBytes; 
 		tptBlob._size = 0;
@@ -207,7 +206,7 @@ public class DBClass{
 	}
 
 	// Return enrollment ID from an OleDbDataReader
-	public int getId(OleDbDataReader rs)
+    public int getId(MySqlDataReader rs)
 	{
 		return rs.GetInt32(0);
 	}
