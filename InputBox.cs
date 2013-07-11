@@ -42,7 +42,7 @@ using System.Collections;
 using System.ComponentModel;
 using System.Windows.Forms;
 
-namespace GrFingerXSampleCS2005
+namespace Panchita
 {
 
 	#region InputBox return result

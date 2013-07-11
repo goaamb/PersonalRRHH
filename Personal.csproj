@@ -10,7 +10,7 @@
     <ApplicationIcon>sample.ico</ApplicationIcon>
     <AssemblyKeyContainerName>
     </AssemblyKeyContainerName>
-    <AssemblyName>GrFingerXSampleC#2008</AssemblyName>
+    <AssemblyName>Registro Personal Panchita</AssemblyName>
     <AssemblyOriginatorKeyFile>
     </AssemblyOriginatorKeyFile>
     <DefaultClientScript>JScript</DefaultClientScript>
@@ -18,9 +18,9 @@
     <DefaultTargetSchema>IE50</DefaultTargetSchema>
     <DelaySign>false</DelaySign>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>GrFingerXSampleCS2008</RootNamespace>
+    <RootNamespace>Panchita</RootNamespace>
     <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
-    <StartupObject>GrFingerXSampleCS2005.formMain</StartupObject>
+    <StartupObject>Panchita.Program</StartupObject>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
     <UpgradeBackupLocation>
@@ -160,10 +160,10 @@
     <Compile Include="DBClass.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="formMain.cs">
+    <Compile Include="FormBase.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="formOption.cs">
+    <Compile Include="formMain.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="ImageConverter.cs">
@@ -172,6 +172,13 @@
     <Compile Include="InputBox.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Program.cs" />
+    <Compile Include="RegistroPersonal.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="RegistroPersonal.Designer.cs">
+      <DependentUpon>RegistroPersonal.cs</DependentUpon>
+    </Compile>
     <Compile Include="Util.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -179,9 +186,8 @@
       <DependentUpon>formMain.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="formOption.resx">
-      <DependentUpon>formOption.cs</DependentUpon>
-      <SubType>Designer</SubType>
+    <EmbeddedResource Include="RegistroPersonal.resx">
+      <DependentUpon>RegistroPersonal.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
@@ -212,7 +218,9 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
+    <None Include="app.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

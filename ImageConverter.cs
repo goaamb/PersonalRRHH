@@ -38,7 +38,7 @@
 
 using System;
 
-namespace GrFingerXSampleCS2005
+namespace Panchita
 {
 	// Class to convert an IPictureDisp image to/from Image
 	public class ImageConverter :  System.Windows.Forms.AxHost 
