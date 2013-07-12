@@ -125,6 +125,7 @@
             this.btnRegistrar.TabIndex = 9;
             this.btnRegistrar.Text = "Registrar";
             this.btnRegistrar.UseVisualStyleBackColor = true;
+            this.btnRegistrar.Click += new System.EventHandler(this.btnRegistrar_Click);
             // 
             // dataGridView1
             // 
@@ -136,6 +137,7 @@
             // 
             // btnNuevoDedo
             // 
+            this.btnNuevoDedo.Enabled = false;
             this.btnNuevoDedo.Location = new System.Drawing.Point(185, 426);
             this.btnNuevoDedo.Name = "btnNuevoDedo";
             this.btnNuevoDedo.Size = new System.Drawing.Size(99, 23);
@@ -163,6 +165,7 @@
             this.Controls.Add(this.label1);
             this.Name = "RegistroPersonal";
             this.Text = "RegistroPersonal";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.RegistroPersonal_FormClosed);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();

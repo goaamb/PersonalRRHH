@@ -44,6 +44,18 @@ using System.Runtime.InteropServices;
 using System.Data.Odbc;
 using MySql.Data.MySqlClient;
 
+
+public class Personal{
+    public int id;
+    public string ci;
+    public string paterno;
+    public string materno;
+    public string nombre;
+    public Personal(){
+        ci=paterno=materno=nombre="";
+    }
+}
+
 // the template class
 public class TTemplate
 {
@@ -164,6 +176,56 @@ public class DBClass{
 
 		return rs;
 	}
+
+    public Personal getPersonal(string CI) {
+        MySqlCommand cmdGetTemplates;
+        MySqlDataReader rs;
+        Personal p = null;
+        //setting up command 
+        cmdGetTemplates = new MySqlCommand("SELECT * FROM personal where CI=?CI" , _connection);
+        cmdGetTemplates.Parameters.AddWithValue("?CI", CI);
+
+        //execute query
+        if (_connection.State == ConnectionState.Open)
+        {
+            cmdGetTemplates.Prepare();
+            rs=cmdGetTemplates.ExecuteReader();
+            if (rs!=null && rs.HasRows) {
+                p = new Personal();
+                p.id = (int)rs["id"];
+                p.ci = rs["ci"].ToString();
+                p.paterno= rs["paterno"].ToString();
+                p.materno = rs["materno"].ToString();
+                p.nombre= rs["nombre"].ToString();
+            }
+            rs.Close();
+        }
+        return p;
+    }
+
+    public Boolean insertarPersonal(string CI,string Paterno, string Materno,string Nombre) {
+        if (getPersonal(CI) == null)
+        {
+            try
+            {
+                MySqlCommand cmdInsert = new MySqlCommand("INSERT INTO Personal(ci,paterno,materno,nombre) values(?ci,?paterno,?materno,?nombre) ", _connection);
+                cmdInsert.Parameters.AddWithValue("?ci", CI.Trim());
+                cmdInsert.Parameters.AddWithValue("?paterno", Paterno.Trim());
+                cmdInsert.Parameters.AddWithValue("?materno", Materno.Trim());
+                cmdInsert.Parameters.AddWithValue("?nombre", Nombre.Trim());
+
+                //execute query
+                if (_connection.State == ConnectionState.Open)
+                {
+                    cmdInsert.Prepare();
+                    cmdInsert.ExecuteNonQuery();
+                }
+                return true;
+            }
+            catch { };
+        }
+        return false;
+    }
 
 	
 	// Returns template with the supplied ID.

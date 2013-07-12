@@ -27,7 +27,12 @@ namespace Panchita
             if (Visible) mi1.Text = "&Ocultar";
             else mi1.Text = "&Mostrar";
         }
-        public void registrarPersona_Click(object Sender, EventArgs e){ }
+        public void registrarPersona_Click(object Sender, EventArgs e){
+            if (GetType() == typeof(RegistroPersonal)) {
+                if (!Visible) notifyIcon_DoubleClick(Sender, e);
+                Focus();
+            }
+        }
 
         public  void crearMenu()
         {
