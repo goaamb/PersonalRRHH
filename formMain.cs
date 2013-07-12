@@ -13,8 +13,11 @@ namespace Panchita
 		private System.Windows.Forms.Button btEnroll;
         private System.Windows.Forms.PictureBox pbImg;
 		private AxGrFingerXLib.AxGrFingerXCtrl axGrFingerXCtrl1;
-        private Util myUtil;
+        private static Util myUtil=null;
         private System.Windows.Forms.ListBox lbLog;
+        public bool prepareEnroll=false;
+        public int huellaID=0;
+        private static formMain instance=null;
 
 		public formMain()
 		{
@@ -45,12 +48,19 @@ namespace Panchita
             ((System.ComponentModel.ISupportInitialize)(this.pbImg)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.axGrFingerXCtrl1)).BeginInit();
             this.SuspendLayout();
-            this.btEnroll.Location = new System.Drawing.Point(416, 144);
+            // 
+            // btEnroll
+            // 
+            this.btEnroll.Location = new System.Drawing.Point(414, 46);
             this.btEnroll.Name = "btEnroll";
             this.btEnroll.Size = new System.Drawing.Size(97, 24);
             this.btEnroll.TabIndex = 11;
             this.btEnroll.Text = "Start Enroll";
+            this.btEnroll.Visible = false;
             this.btEnroll.Click += new System.EventHandler(this.btEnroll_Click);
+            // 
+            // pbImg
+            // 
             this.pbImg.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.pbImg.Location = new System.Drawing.Point(8, 8);
             this.pbImg.Name = "pbImg";
@@ -58,11 +68,17 @@ namespace Panchita
             this.pbImg.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.pbImg.TabIndex = 9;
             this.pbImg.TabStop = false;
+            // 
+            // lbLog
+            // 
             this.lbLog.Location = new System.Drawing.Point(8, 416);
             this.lbLog.Name = "lbLog";
             this.lbLog.ScrollAlwaysVisible = true;
             this.lbLog.Size = new System.Drawing.Size(496, 108);
             this.lbLog.TabIndex = 23;
+            // 
+            // axGrFingerXCtrl1
+            // 
             this.axGrFingerXCtrl1.Enabled = true;
             this.axGrFingerXCtrl1.Location = new System.Drawing.Point(448, 8);
             this.axGrFingerXCtrl1.Name = "axGrFingerXCtrl1";
@@ -74,6 +90,9 @@ namespace Panchita
             this.axGrFingerXCtrl1.FingerUp += new AxGrFingerXLib._IGrFingerXCtrlEvents_FingerUpEventHandler(this.axGrFingerXCtrl1_FingerUp);
             this.axGrFingerXCtrl1.FingerDown += new AxGrFingerXLib._IGrFingerXCtrlEvents_FingerDownEventHandler(this.axGrFingerXCtrl1_FingerDown);
             this.axGrFingerXCtrl1.ImageAcquired += new AxGrFingerXLib._IGrFingerXCtrlEvents_ImageAcquiredEventHandler(this.axGrFingerXCtrl1_ImageAcquired);
+            // 
+            // formMain
+            // 
             this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
             this.ClientSize = new System.Drawing.Size(527, 534);
             this.Controls.Add(this.lbLog);
@@ -85,11 +104,12 @@ namespace Panchita
             this.Name = "formMain";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Registrar Personal";
-            this.Closed += new System.EventHandler(this.formMain_Closed);
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.formMain_Closed);
             this.Load += new System.EventHandler(this.formMain_Load);
             ((System.ComponentModel.ISupportInitialize)(this.pbImg)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.axGrFingerXCtrl1)).EndInit();
             this.ResumeLayout(false);
+
 		}
 		#endregion
 
@@ -97,31 +117,39 @@ namespace Panchita
 
 		private void formMain_Load(object sender, System.EventArgs e)
 		{
-			int err;
+    		int err;
+            if (myUtil == null)
+            {
+                myUtil = new Util(lbLog, pbImg, btEnroll);
 
-			myUtil = new Util(lbLog, pbImg, btEnroll);
-
-			err = myUtil.InitializeGrFinger(axGrFingerXCtrl1);
-			if (err < 0) 
-			{
-				myUtil.WriteError((GRConstants)err);
-			} 
-			else 
-			{
-				myUtil.WriteLog("**GrFingerX Initialized Successfull**");
-			}
+                err = myUtil.InitializeGrFinger(axGrFingerXCtrl1);
+                if (err < 0)
+                {
+                    myUtil.WriteError((GRConstants)err);
+                }
+                else
+                {
+                    myUtil.WriteLog("**GrFingerX Initialized Successfull**");
+                }
+            }
 		}
 
 
-		private void formMain_Closed(object sender, System.EventArgs e)
+		private void formMain_Closed(object sender, FormClosedEventArgs e)
 		{
+            base.FormBase_FormClosed(sender,e);
 			myUtil.FinalizeUtil();
 		}
 
 
 		private void btEnroll_Click(object sender, System.EventArgs e)
 		{
-            if(myUtil._isEnrolling)
+            enroll();          
+		}
+
+        public void enroll()
+        {
+            if (myUtil._isEnrolling)
             {
                 btEnroll.Text = "Start Enroll";
                 myUtil._isEnrolling = false;
@@ -142,8 +170,8 @@ namespace Panchita
                     myUtil.WriteError((GRConstants)ret);
                 }
 
-            }            
-		}
+            }  
+        }
 
 		private void btIdentify_Click()
 		{
@@ -304,7 +332,14 @@ namespace Panchita
                     if (id > 0)
                     {
                         myUtil.WriteLog("Fingerprint identified. ID = " + id + ". Score = " + score + ".");
+                        notifyIcon.BalloonTipText = "Fingerprint identified. ID = " + id + ". Score = " + score + ".";
+                        notifyIcon.ShowBalloonTip(50);
                         myUtil.PrintBiometricDisplay(true, GRConstants.GR_DEFAULT_CONTEXT); btEnroll.PerformClick(); //stop consolidation
+                        if (prepareEnroll)
+                        {
+                            this.huellaID = id;
+                            this.Hide();
+                        }
                     }
                     else
                     {
@@ -344,6 +379,13 @@ namespace Panchita
                             if (id >= 0)
                             {
                                 myUtil.WriteLog("Consolidated template enrolled with id = " + id);
+                                notifyIcon.BalloonTipText = "Fingerprint identified. ID = " + id + ". Score = " + score + ".";
+                                notifyIcon.ShowBalloonTip(50);
+                                if (prepareEnroll)
+                                {
+                                    this.huellaID = id;
+                                    this.Hide();
+                                }
                             }
                             else
                             {
@@ -356,5 +398,13 @@ namespace Panchita
             }
             GC.Collect();
 		}
+
+        internal static formMain getInstance()
+        {
+            if(instance==null){
+                instance = new formMain();
+            }
+            return instance;
+        }
     }
 }

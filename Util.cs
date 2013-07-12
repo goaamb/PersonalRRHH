@@ -66,6 +66,8 @@ public class Util
 	public const int ERR_INVALID_ID = -998;
 	public const int ERR_INVALID_TEMPLATE = -997;
 
+    public Boolean initialized=false;
+
 	// -----------------------------------------------------------------------------------
 	// Support functions
 	// -----------------------------------------------------------------------------------
@@ -217,7 +219,7 @@ public class Util
 		_grfingerx = grfingerx;
 		//Check DataBase Class.
 		if (_DB == null)
-			_DB = new DBClass();
+			_DB = DBClass.getDB();
 		//Open DataBase
 		if(_DB.openDB()==false) 
 		{
@@ -238,6 +240,7 @@ public class Util
 		//Initialize library
 		result = (GRConstants)_grfingerx.Initialize();
 		if (result < 0) return (int)result;
+        initialized = true;
 		return (int)_grfingerx.CapInitialize();
 	}
 

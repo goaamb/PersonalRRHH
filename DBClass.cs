@@ -46,7 +46,7 @@ using MySql.Data.MySqlClient;
 
 
 public class Personal{
-    public int id;
+    public uint id;
     public string ci;
     public string paterno;
     public string materno;
@@ -74,6 +74,8 @@ public class TTemplate
 // the database class
 public class DBClass{
 
+    private static DBClass myDB=null;
+
     public string table = "huella";
     public string field = "huella";
 
@@ -89,6 +91,14 @@ public class DBClass{
 	
 	public DBClass(){
 	}
+
+    public static DBClass getDB() {
+        if (myDB == null)
+        {
+            myDB = new DBClass();
+        }
+        return myDB;
+    }
 
 	// Open connection
 	public bool openDB()
@@ -191,8 +201,9 @@ public class DBClass{
             cmdGetTemplates.Prepare();
             rs=cmdGetTemplates.ExecuteReader();
             if (rs!=null && rs.HasRows) {
+                rs.Read();
                 p = new Personal();
-                p.id = (int)rs["id"];
+                p.id = (uint)rs["id"];
                 p.ci = rs["ci"].ToString();
                 p.paterno= rs["paterno"].ToString();
                 p.materno = rs["materno"].ToString();
@@ -258,7 +269,7 @@ public class DBClass{
 		System.Byte[] temp = new System.Byte[
 			(int)GRConstants.GR_MAX_SIZE_TEMPLATE];
 		// get bytes
-		readedBytes = rs.GetBytes(1, 0, temp, 0,temp.Length);
+		readedBytes = rs.GetBytes(2, 0, temp, 0,temp.Length);
 		// copy to structure
 		System.Array.Copy(temp, 0, tptBlob._tpt,0,(int)readedBytes);
 		// set real size

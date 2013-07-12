@@ -11,7 +11,9 @@ namespace Panchita
         [STAThread]
         static void Main()
         {
-            Application.Run(new RegistroPersonal());
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+            Application.Run(formMain.getInstance());
         }
     }
 }

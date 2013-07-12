@@ -28,9 +28,15 @@ namespace Panchita
             else mi1.Text = "&Mostrar";
         }
         public void registrarPersona_Click(object Sender, EventArgs e){
-            if (GetType() == typeof(RegistroPersonal)) {
+            if (GetType() == typeof(RegistroPersonal))
+            {
                 if (!Visible) notifyIcon_DoubleClick(Sender, e);
                 Focus();
+            }
+            else {
+                RegistroPersonal r = new RegistroPersonal();
+                r.Show();
+                r.Focus();
             }
         }
 
@@ -58,6 +64,24 @@ namespace Panchita
             notifyIcon.Text = Text;
             notifyIcon.Visible = true;
             notifyIcon.DoubleClick += new System.EventHandler(notifyIcon_DoubleClick);
+        }
+
+        private void InitializeComponent()
+        {
+            this.SuspendLayout();
+            // 
+            // FormBase
+            // 
+            this.ClientSize = new System.Drawing.Size(292, 266);
+            this.Name = "FormBase";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.FormBase_FormClosed);
+            this.ResumeLayout(false);
+
+        }
+
+        protected void FormBase_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            notifyIcon.Visible = false;
         }
     }
 }

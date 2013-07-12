@@ -14,23 +14,41 @@ namespace Panchita
         public RegistroPersonal()
         {
             InitializeComponent();
-            db = new DBClass();
+            db = DBClass.getDB();
             db.openDB();
         }
 
         private void btnNuevoDedo_Click(object sender, EventArgs e)
         {
-            formMain f=new formMain();
+            formMain f=formMain.getInstance();
+            f.prepareEnroll=true;
             f.Show();
+            f.enroll();
+            f.Focus();
         }
 
         private void btnRegistrar_Click(object sender, EventArgs e)
         {
-            db.insertarPersonal(txtCI.Text, txtPaterno.Text, txtMaterno.Text, txtNombre.Text);
+            Personal p = db.getPersonal(txtCI.Text);
+            if (p != null)
+            {
+                txtCI.Text = p.ci;
+                txtPaterno.Text = p.paterno;
+                txtMaterno.Text = p.materno;
+                txtNombre.Text = p.nombre;
+                btnRegistrar.Enabled = false;
+                btnNuevoDedo.Enabled = true;
+            }
+            else if (db.insertarPersonal(txtCI.Text, txtPaterno.Text, txtMaterno.Text, txtNombre.Text))
+            {
+                btnRegistrar.Enabled = false;
+                btnNuevoDedo.Enabled = true;
+            }
         }
 
         private void RegistroPersonal_FormClosed(object sender, FormClosedEventArgs e)
         {
+            base.FormBase_FormClosed(sender, e);
             db.closeDB();
         }
 
