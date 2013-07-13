@@ -19,7 +19,7 @@ namespace Panchita
         public int huellaID=0;
         private static formMain instance=null;
 
-		public formMain()
+		public formMain():base(true)
 		{
 			InitializeComponent();
 		}
@@ -104,6 +104,7 @@ namespace Panchita
             this.Name = "formMain";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Registrar Personal";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.formMain_FormClosing);
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.formMain_Closed);
             this.Load += new System.EventHandler(this.formMain_Load);
             ((System.ComponentModel.ISupportInitialize)(this.pbImg)).EndInit();
@@ -405,6 +406,13 @@ namespace Panchita
                 instance = new formMain();
             }
             return instance;
+        }
+
+        private void formMain_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            e.Cancel = true;
+            Visible = true;
+            notifyIcon_DoubleClick(sender, e);
         }
     }
 }

@@ -16,9 +16,14 @@ namespace Panchita
         public MenuItem mi2;
         public MenuItem mi3;
 
-        public FormBase() {
+
+        public FormBase():this(false) {
+            ;
+        }
+
+        public FormBase(Boolean notify) {
             crearMenu();
-            CreateNotifyicon();
+            if(notify) CreateNotifyicon();
         }
 
         public void notifyIcon_DoubleClick(object Sender, EventArgs e)
@@ -53,6 +58,10 @@ namespace Panchita
 
         private  void Salir_Click(object Sender, EventArgs e)
         {
+            formMain f = formMain.getInstance();
+            f.Dispose();
+            f.Close();
+            
             Application.Exit();
         }
 
@@ -81,7 +90,7 @@ namespace Panchita
 
         protected void FormBase_FormClosed(object sender, FormClosedEventArgs e)
         {
-            notifyIcon.Visible = false;
+            if(notifyIcon!=null)notifyIcon.Visible = false;
         }
     }
 }
