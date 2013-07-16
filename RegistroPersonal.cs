@@ -22,9 +22,18 @@ namespace Panchita
         {
             formMain f=formMain.getInstance();
             f.prepareEnroll=true;
+            if (f.enHuellaLeido == null)
+            {
+                f.enHuellaLeido += new formMain.EnHuellaLeido(enHuellaLeida);
+            }
             f.Show();
             f.enroll();
             f.Focus();
+        }
+
+        private void enHuellaLeida(int id) { 
+            MessageBox.Show(id.ToString());
+            formMain.getInstance().prepareEnroll = false;
         }
 
         private void btnRegistrar_Click(object sender, EventArgs e)

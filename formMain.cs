@@ -18,6 +18,9 @@ namespace Panchita
         public bool prepareEnroll=false;
         public int huellaID=0;
         private static formMain instance=null;
+        public delegate void EnHuellaLeido(int id);
+
+        public EnHuellaLeido enHuellaLeido;
 
 		public formMain():base(true)
 		{
@@ -335,12 +338,18 @@ namespace Panchita
                         myUtil.WriteLog("Fingerprint identified. ID = " + id + ". Score = " + score + ".");
                         notifyIcon.BalloonTipText = "Fingerprint identified. ID = " + id + ". Score = " + score + ".";
                         notifyIcon.ShowBalloonTip(50);
-                        myUtil.PrintBiometricDisplay(true, GRConstants.GR_DEFAULT_CONTEXT); btEnroll.PerformClick(); //stop consolidation
+                        myUtil.PrintBiometricDisplay(true, GRConstants.GR_DEFAULT_CONTEXT);
+                        btEnroll.Text = "Start Enroll";
+                        myUtil._isEnrolling = false;
+                        myUtil.WriteLog("Enrollment stopped");
                         if (prepareEnroll)
                         {
                             this.huellaID = id;
                             this.Hide();
-                        }
+                            if (enHuellaLeido!=null) {
+                                enHuellaLeido(huellaID);
+                            }
+                        } 
                     }
                     else
                     {
@@ -386,6 +395,10 @@ namespace Panchita
                                 {
                                     this.huellaID = id;
                                     this.Hide();
+                                    if (enHuellaLeido != null)
+                                    {
+                                        enHuellaLeido(huellaID);
+                                    }
                                 }
                             }
                             else
@@ -412,6 +425,7 @@ namespace Panchita
         {
             e.Cancel = true;
             Visible = true;
+            prepareEnroll = false;
             notifyIcon_DoubleClick(sender, e);
         }
     }
