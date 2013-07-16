@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.label1 = new System.Windows.Forms.Label();
             this.lblCI = new System.Windows.Forms.Label();
             this.txtCI = new System.Windows.Forms.TextBox();
@@ -38,9 +39,12 @@
             this.txtNombre = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
             this.btnRegistrar = new System.Windows.Forms.Button();
-            this.dataGridView1 = new System.Windows.Forms.DataGridView();
+            this.dgPersonal = new System.Windows.Forms.DataGridView();
             this.btnNuevoDedo = new System.Windows.Forms.Button();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
+            this.bsPersonal = new System.Windows.Forms.BindingSource(this.components);
+            this.btnEliminaDedo = new System.Windows.Forms.Button();
+            ((System.ComponentModel.ISupportInitialize)(this.dgPersonal)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.bsPersonal)).BeginInit();
             this.SuspendLayout();
             // 
             // label1
@@ -119,7 +123,7 @@
             // 
             // btnRegistrar
             // 
-            this.btnRegistrar.Location = new System.Drawing.Point(196, 182);
+            this.btnRegistrar.Location = new System.Drawing.Point(181, 182);
             this.btnRegistrar.Name = "btnRegistrar";
             this.btnRegistrar.Size = new System.Drawing.Size(75, 23);
             this.btnRegistrar.TabIndex = 9;
@@ -127,18 +131,23 @@
             this.btnRegistrar.UseVisualStyleBackColor = true;
             this.btnRegistrar.Click += new System.EventHandler(this.btnRegistrar_Click);
             // 
-            // dataGridView1
+            // dgPersonal
             // 
-            this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridView1.Location = new System.Drawing.Point(59, 220);
-            this.dataGridView1.Name = "dataGridView1";
-            this.dataGridView1.Size = new System.Drawing.Size(327, 190);
-            this.dataGridView1.TabIndex = 10;
+            this.dgPersonal.AllowUserToAddRows = false;
+            this.dgPersonal.AllowUserToDeleteRows = false;
+            this.dgPersonal.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgPersonal.Location = new System.Drawing.Point(59, 220);
+            this.dgPersonal.MultiSelect = false;
+            this.dgPersonal.Name = "dgPersonal";
+            this.dgPersonal.ReadOnly = true;
+            this.dgPersonal.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+            this.dgPersonal.Size = new System.Drawing.Size(327, 190);
+            this.dgPersonal.TabIndex = 10;
             // 
             // btnNuevoDedo
             // 
             this.btnNuevoDedo.Enabled = false;
-            this.btnNuevoDedo.Location = new System.Drawing.Point(185, 426);
+            this.btnNuevoDedo.Location = new System.Drawing.Point(170, 426);
             this.btnNuevoDedo.Name = "btnNuevoDedo";
             this.btnNuevoDedo.Size = new System.Drawing.Size(99, 23);
             this.btnNuevoDedo.TabIndex = 11;
@@ -146,13 +155,25 @@
             this.btnNuevoDedo.UseVisualStyleBackColor = true;
             this.btnNuevoDedo.Click += new System.EventHandler(this.btnNuevoDedo_Click);
             // 
+            // btnEliminaDedo
+            // 
+            this.btnEliminaDedo.Enabled = false;
+            this.btnEliminaDedo.Location = new System.Drawing.Point(59, 426);
+            this.btnEliminaDedo.Name = "btnEliminaDedo";
+            this.btnEliminaDedo.Size = new System.Drawing.Size(99, 23);
+            this.btnEliminaDedo.TabIndex = 12;
+            this.btnEliminaDedo.Text = "Eliminar Dedo";
+            this.btnEliminaDedo.UseVisualStyleBackColor = true;
+            this.btnEliminaDedo.Click += new System.EventHandler(this.btnEliminaDedo_Click);
+            // 
             // RegistroPersonal
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(447, 461);
+            this.Controls.Add(this.btnEliminaDedo);
             this.Controls.Add(this.btnNuevoDedo);
-            this.Controls.Add(this.dataGridView1);
+            this.Controls.Add(this.dgPersonal);
             this.Controls.Add(this.btnRegistrar);
             this.Controls.Add(this.txtNombre);
             this.Controls.Add(this.label3);
@@ -166,7 +187,8 @@
             this.Name = "RegistroPersonal";
             this.Text = "RegistroPersonal";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.RegistroPersonal_FormClosed);
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgPersonal)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.bsPersonal)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -184,7 +206,9 @@
         private System.Windows.Forms.TextBox txtNombre;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Button btnRegistrar;
-        private System.Windows.Forms.DataGridView dataGridView1;
+        private System.Windows.Forms.DataGridView dgPersonal;
         private System.Windows.Forms.Button btnNuevoDedo;
+        private System.Windows.Forms.BindingSource bsPersonal;
+        private System.Windows.Forms.Button btnEliminaDedo;
     }
 }

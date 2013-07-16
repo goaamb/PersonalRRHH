@@ -16,9 +16,13 @@ namespace Panchita
         private static Util myUtil=null;
         private System.Windows.Forms.ListBox lbLog;
         public bool prepareEnroll=false;
-        public int huellaID=0;
+        public uint huellaID=0;
         private static formMain instance=null;
-        public delegate void EnHuellaLeido(int id);
+        private ComboBox cmbDedo;
+        private ComboBox cmbMano;
+        public uint personal = 0;
+    
+        public delegate void EnHuellaLeido(uint id);
 
         public EnHuellaLeido enHuellaLeido;
 
@@ -48,13 +52,15 @@ namespace Panchita
             this.pbImg = new System.Windows.Forms.PictureBox();
             this.lbLog = new System.Windows.Forms.ListBox();
             this.axGrFingerXCtrl1 = new AxGrFingerXLib.AxGrFingerXCtrl();
+            this.cmbDedo = new System.Windows.Forms.ComboBox();
+            this.cmbMano = new System.Windows.Forms.ComboBox();
             ((System.ComponentModel.ISupportInitialize)(this.pbImg)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.axGrFingerXCtrl1)).BeginInit();
             this.SuspendLayout();
             // 
             // btEnroll
             // 
-            this.btEnroll.Location = new System.Drawing.Point(414, 46);
+            this.btEnroll.Location = new System.Drawing.Point(414, 384);
             this.btEnroll.Name = "btEnroll";
             this.btEnroll.Size = new System.Drawing.Size(97, 24);
             this.btEnroll.TabIndex = 11;
@@ -94,10 +100,41 @@ namespace Panchita
             this.axGrFingerXCtrl1.FingerDown += new AxGrFingerXLib._IGrFingerXCtrlEvents_FingerDownEventHandler(this.axGrFingerXCtrl1_FingerDown);
             this.axGrFingerXCtrl1.ImageAcquired += new AxGrFingerXLib._IGrFingerXCtrlEvents_ImageAcquiredEventHandler(this.axGrFingerXCtrl1_ImageAcquired);
             // 
+            // cmbDedo
+            // 
+            this.cmbDedo.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmbDedo.FormattingEnabled = true;
+            this.cmbDedo.Items.AddRange(new object[] {
+            "Pulgar",
+            "Indice",
+            "Medio",
+            "Anular",
+            "Meñique"});
+            this.cmbDedo.Location = new System.Drawing.Point(414, 38);
+            this.cmbDedo.Name = "cmbDedo";
+            this.cmbDedo.Size = new System.Drawing.Size(97, 21);
+            this.cmbDedo.TabIndex = 24;
+            this.cmbDedo.Visible = false;
+            // 
+            // cmbMano
+            // 
+            this.cmbMano.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmbMano.FormattingEnabled = true;
+            this.cmbMano.Items.AddRange(new object[] {
+            "Izquierda",
+            "Derecha"});
+            this.cmbMano.Location = new System.Drawing.Point(414, 8);
+            this.cmbMano.Name = "cmbMano";
+            this.cmbMano.Size = new System.Drawing.Size(97, 21);
+            this.cmbMano.TabIndex = 25;
+            this.cmbMano.Visible = false;
+            // 
             // formMain
             // 
             this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
             this.ClientSize = new System.Drawing.Size(527, 534);
+            this.Controls.Add(this.cmbMano);
+            this.Controls.Add(this.cmbDedo);
             this.Controls.Add(this.lbLog);
             this.Controls.Add(this.axGrFingerXCtrl1);
             this.Controls.Add(this.btEnroll);
@@ -136,6 +173,8 @@ namespace Panchita
                     myUtil.WriteLog("**GrFingerX Initialized Successfull**");
                 }
             }
+            cmbDedo.SelectedIndex = 0;
+            cmbMano.SelectedIndex = 0;
 		}
 
 
@@ -179,15 +218,13 @@ namespace Panchita
 
 		private void btIdentify_Click()
 		{
-			int ret, score;
+			uint ret;
 
-			score = 0;
-			ret = myUtil.Identify(ref score);
+			int score = 0;
+			ret = (uint)myUtil.Identify(ref score);
 			if (ret > 0) 
 			{
-				myUtil.WriteLog("Fingerprint identified. ID = " + ret + ". Score = " + score + ".");
-                notifyIcon.BalloonTipText = "Fingerprint identified. ID = " + ret + ". Score = " + score + ".";
-                notifyIcon.ShowBalloonTip(50);
+                identified(ret,score);
 				myUtil.PrintBiometricDisplay(true, GRConstants.GR_DEFAULT_CONTEXT);
 			} 
 			else 
@@ -283,6 +320,8 @@ namespace Panchita
 		{
 			myUtil.WriteLog("Sensor: " + e.idSensor + ". Event: Plugged.");
 			axGrFingerXCtrl1.CapStartCapture(e.idSensor);
+            Visible = true;
+            notifyIcon_DoubleClick(sender, new EventArgs());
 		}
 
 		private void axGrFingerXCtrl1_SensorUnplug(object sender, AxGrFingerXLib._IGrFingerXCtrlEvents_SensorUnplugEvent e)
@@ -330,26 +369,17 @@ namespace Panchita
                 else
                 {
                     btnExtract_Click();
-                    int id=0;
+                    uint id=0;
                     int score=0;
-                    id = myUtil.Identify(ref score);
+                    id = (uint)myUtil.Identify(ref score);
                     if (id > 0)
                     {
-                        myUtil.WriteLog("Fingerprint identified. ID = " + id + ". Score = " + score + ".");
-                        notifyIcon.BalloonTipText = "Fingerprint identified. ID = " + id + ". Score = " + score + ".";
-                        notifyIcon.ShowBalloonTip(50);
                         myUtil.PrintBiometricDisplay(true, GRConstants.GR_DEFAULT_CONTEXT);
                         btEnroll.Text = "Start Enroll";
                         myUtil._isEnrolling = false;
                         myUtil.WriteLog("Enrollment stopped");
-                        if (prepareEnroll)
-                        {
-                            this.huellaID = id;
-                            this.Hide();
-                            if (enHuellaLeido!=null) {
-                                enHuellaLeido(huellaID);
-                            }
-                        } 
+
+                        identified(id,score);
                     }
                     else
                     {
@@ -385,33 +415,58 @@ namespace Panchita
                         }
                         if (saveConsolidatedTemplate)
                         {
-                            id = myUtil.Enroll();
+                            id = (uint)myUtil.Enroll(cmbDedo.SelectedItem.ToString(), cmbMano.SelectedItem.ToString(), personal);
                             if (id >= 0)
                             {
                                 myUtil.WriteLog("Consolidated template enrolled with id = " + id);
-                                notifyIcon.BalloonTipText = "Fingerprint identified. ID = " + id + ". Score = " + score + ".";
-                                notifyIcon.ShowBalloonTip(50);
-                                if (prepareEnroll)
-                                {
-                                    this.huellaID = id;
-                                    this.Hide();
-                                    if (enHuellaLeido != null)
-                                    {
-                                        enHuellaLeido(huellaID);
-                                    }
-                                }
+                                identified(id, score);
                             }
                             else
                             {
                                 myUtil.WriteLog("Error: Consolidated template not enrolled");
                             }
-                            btEnroll.PerformClick();
+                            btEnroll.Text = "Start Enroll";
+                            myUtil._isEnrolling = false;
+                            myUtil.WriteLog("Enrollment stopped");
                         }
                     }
                 }
             }
             GC.Collect();
 		}
+
+        private void identified(uint id,int score)
+        {
+            DBClass db = DBClass.getDB();
+            Personal p = db.getPersonal(id);
+            String msg = "";
+            if (p != null)
+            {
+                msg = p.paterno + " " + p.materno + " " + p.nombre + " Tiqueo con exito.";
+                tiquear(p.id);
+            }
+            myUtil.WriteLog(msg);
+            notifyIcon.BalloonTipText = msg;
+            notifyIcon.ShowBalloonTip(50);
+            
+            if (prepareEnroll)
+            {
+                this.cmbDedo.Visible = false;
+                this.cmbMano.Visible = false;
+                this.huellaID = id;
+                this.Visible = true;
+                notifyIcon_DoubleClick(this, new EventArgs());
+                if (enHuellaLeido != null)
+                {
+                    enHuellaLeido(huellaID);
+                }
+            }
+        }
+
+        private void tiquear(uint id)
+        {
+            DBClass.getDB().insertHistorial(id);
+        }
 
         internal static formMain getInstance()
         {
@@ -427,6 +482,21 @@ namespace Panchita
             Visible = true;
             prepareEnroll = false;
             notifyIcon_DoubleClick(sender, e);
+        }
+
+        internal void showEnroll(uint id, EnHuellaLeido enHuellaLeida)
+        {
+            cmbDedo.Visible = true;
+            cmbMano.Visible = true;
+            prepareEnroll = true;
+            personal = id;
+            if (enHuellaLeido == null)
+            {
+                enHuellaLeido += new formMain.EnHuellaLeido(enHuellaLeida);
+            }
+            Show();
+            enroll();
+            Focus();
         }
     }
 }

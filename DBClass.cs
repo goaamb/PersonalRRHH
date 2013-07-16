@@ -137,18 +137,21 @@ public class DBClass{
 
 
 	// Add template to database. Returns added template ID.
-	public bool addTemplate(TTemplate tpt,ref int id) 
+	public bool addTemplate(TTemplate tpt,string dedo,string mano,uint personal,ref int id) 
 	{
         MySqlCommand cmdInsert = null;
         MySqlCommand cmdSelect = null;
 
 		try{
 			// Create SQL command containing ? parameter for BLOB.
-            cmdInsert = new MySqlCommand("INSERT INTO " + table + "(" + field + ") values(?field) ", _connection);
+            cmdInsert = new MySqlCommand("INSERT INTO " + table + "(" + field + ",dedo,mano,personal) values(?field,?dedo,?mano,?personal) ", _connection);
 			// Create parameter for ? contained in the SQL statement.
 			System.Byte [] temp = new System.Byte[tpt._size + 1];
 			System.Array.Copy(tpt._tpt, 0, temp, 0, tpt._size);
             cmdInsert.Parameters.AddWithValue("?field", temp);
+            cmdInsert.Parameters.AddWithValue("?dedo", dedo);
+            cmdInsert.Parameters.AddWithValue("?mano", mano);
+            cmdInsert.Parameters.AddWithValue("?personal", personal);
             
 			//execute query
             if (_connection.State == ConnectionState.Open)
@@ -186,7 +189,51 @@ public class DBClass{
 
 		return rs;
 	}
+    public MySqlDataReader getPersonal()
+    {
+        MySqlCommand cmdGetPersonal;
+        MySqlDataReader rs;
+       
+        //setting up command 
+        cmdGetPersonal = new MySqlCommand("SELECT * FROM personal", _connection);
 
+        //execute query
+        if (_connection.State == ConnectionState.Open)
+        {
+            cmdGetPersonal.Prepare();
+            rs = cmdGetPersonal.ExecuteReader();
+            return rs;
+        }
+        return null;
+    }
+    public Personal getPersonal(uint id)
+    {
+        MySqlCommand cmdGetTemplates;
+        MySqlDataReader rs;
+        Personal p = null;
+        //setting up command 
+        cmdGetTemplates = new MySqlCommand("SELECT * FROM personal where id=?id", _connection);
+        cmdGetTemplates.Parameters.AddWithValue("?id", id);
+
+        //execute query
+        if (_connection.State == ConnectionState.Open)
+        {
+            cmdGetTemplates.Prepare();
+            rs = cmdGetTemplates.ExecuteReader();
+            if (rs != null && rs.HasRows)
+            {
+                rs.Read();
+                p = new Personal();
+                p.id = (uint)rs["id"];
+                p.ci = rs["ci"].ToString();
+                p.paterno = rs["paterno"].ToString();
+                p.materno = rs["materno"].ToString();
+                p.nombre = rs["nombre"].ToString();
+            }
+            rs.Close();
+        }
+        return p;
+    }
     public Personal getPersonal(string CI) {
         MySqlCommand cmdGetTemplates;
         MySqlDataReader rs;
@@ -214,16 +261,17 @@ public class DBClass{
         return p;
     }
 
-    public Boolean insertarPersonal(string CI,string Paterno, string Materno,string Nombre) {
+    public long insertarPersonal(string CI,string Paterno, string Materno,string Nombre) {
         if (getPersonal(CI) == null)
         {
             try
             {
-                MySqlCommand cmdInsert = new MySqlCommand("INSERT INTO Personal(ci,paterno,materno,nombre) values(?ci,?paterno,?materno,?nombre) ", _connection);
+                MySqlCommand cmdInsert = new MySqlCommand("INSERT INTO Personal(ci,paterno,materno,nombre,fecha_ingreso) values(?ci,?paterno,?materno,?nombre,?fecha) ", _connection);
                 cmdInsert.Parameters.AddWithValue("?ci", CI.Trim());
                 cmdInsert.Parameters.AddWithValue("?paterno", Paterno.Trim());
                 cmdInsert.Parameters.AddWithValue("?materno", Materno.Trim());
                 cmdInsert.Parameters.AddWithValue("?nombre", Nombre.Trim());
+                cmdInsert.Parameters.AddWithValue("?fecha", DateTime.Now);
 
                 //execute query
                 if (_connection.State == ConnectionState.Open)
@@ -231,11 +279,11 @@ public class DBClass{
                     cmdInsert.Prepare();
                     cmdInsert.ExecuteNonQuery();
                 }
-                return true;
+                return cmdInsert.LastInsertedId;
             }
             catch { };
         }
-        return false;
+        return 0;
     }
 
 	
@@ -283,4 +331,35 @@ public class DBClass{
 	{
 		return rs.GetInt32(0);
 	}
+
+    internal DataTable getPersonalHuellaRS(uint id)
+    {
+
+        MySqlDataAdapter dataAdapter = new MySqlDataAdapter("SELECT id as Id,dedo as Dedo,mano as Mano FROM huella where personal=?id", _connection);
+        dataAdapter.SelectCommand.Parameters.AddWithValue("?id", id);
+        MySqlCommandBuilder commandBuilder = new MySqlCommandBuilder(dataAdapter);
+
+        DataTable table = new DataTable();
+        table.Locale = System.Globalization.CultureInfo.InvariantCulture;
+        dataAdapter.Fill(table);
+        return table;
+    }
+
+    internal void insertHistorial(uint id)
+    {
+        try
+        {
+            MySqlCommand cmdInsert = new MySqlCommand("INSERT INTO historial(personal,fecha) values(?personal,?fecha) ", _connection);
+            cmdInsert.Parameters.AddWithValue("?personal", id);
+            cmdInsert.Parameters.AddWithValue("?fecha", DateTime.Now);
+
+            //execute query
+            if (_connection.State == ConnectionState.Open)
+            {
+                cmdInsert.Prepare();
+                cmdInsert.ExecuteNonQuery();
+            }
+        }
+        catch { };
+    }
 }

@@ -288,14 +288,14 @@ public class Util
 	}
 
 	// Add a consolidated fingerprint template to database
-	public int Enroll() 
+	public int Enroll(string dedo,string mano,uint personal) 
 	{
 		int id = 0;
 		// Checks if template is valid.
 		if (ConsolidatedTemplateIsValid())
 		{
 			// Adds template to database and returns template ID.
-            _DB.addTemplate(_consolidatedTpt, ref id);
+            _DB.addTemplate(_consolidatedTpt,dedo,mano,personal, ref id);
 			return id;
 		} 
 		else 
