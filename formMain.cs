@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Windows.Forms;
 using System.Data;
 using GrFingerXLib;
+using System.Media;
 
 namespace Panchita
 {
@@ -21,6 +22,7 @@ namespace Panchita
         private ComboBox cmbDedo;
         private ComboBox cmbMano;
         public uint personal = 0;
+        private PictureBox pictureBox1;
     
         public delegate void EnHuellaLeido(uint id);
 
@@ -49,13 +51,15 @@ namespace Panchita
 		{
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(formMain));
             this.btEnroll = new System.Windows.Forms.Button();
-            this.pbImg = new System.Windows.Forms.PictureBox();
             this.lbLog = new System.Windows.Forms.ListBox();
             this.axGrFingerXCtrl1 = new AxGrFingerXLib.AxGrFingerXCtrl();
             this.cmbDedo = new System.Windows.Forms.ComboBox();
             this.cmbMano = new System.Windows.Forms.ComboBox();
-            ((System.ComponentModel.ISupportInitialize)(this.pbImg)).BeginInit();
+            this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.pbImg = new System.Windows.Forms.PictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.axGrFingerXCtrl1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pbImg)).BeginInit();
             this.SuspendLayout();
             // 
             // btEnroll
@@ -67,16 +71,6 @@ namespace Panchita
             this.btEnroll.Text = "Start Enroll";
             this.btEnroll.Visible = false;
             this.btEnroll.Click += new System.EventHandler(this.btEnroll_Click);
-            // 
-            // pbImg
-            // 
-            this.pbImg.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.pbImg.Location = new System.Drawing.Point(8, 8);
-            this.pbImg.Name = "pbImg";
-            this.pbImg.Size = new System.Drawing.Size(400, 400);
-            this.pbImg.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.pbImg.TabIndex = 9;
-            this.pbImg.TabStop = false;
             // 
             // lbLog
             // 
@@ -129,10 +123,31 @@ namespace Panchita
             this.cmbMano.TabIndex = 25;
             this.cmbMano.Visible = false;
             // 
+            // pictureBox1
+            // 
+            this.pictureBox1.Image = global::Panchita.Properties.Resources.ISOTIPO_PANCHITA;
+            this.pictureBox1.Location = new System.Drawing.Point(414, 156);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(97, 101);
+            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.pictureBox1.TabIndex = 26;
+            this.pictureBox1.TabStop = false;
+            // 
+            // pbImg
+            // 
+            this.pbImg.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.pbImg.Location = new System.Drawing.Point(8, 8);
+            this.pbImg.Name = "pbImg";
+            this.pbImg.Size = new System.Drawing.Size(400, 400);
+            this.pbImg.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.pbImg.TabIndex = 9;
+            this.pbImg.TabStop = false;
+            // 
             // formMain
             // 
             this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
             this.ClientSize = new System.Drawing.Size(527, 534);
+            this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.cmbMano);
             this.Controls.Add(this.cmbDedo);
             this.Controls.Add(this.lbLog);
@@ -147,8 +162,9 @@ namespace Panchita
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.formMain_FormClosing);
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.formMain_Closed);
             this.Load += new System.EventHandler(this.formMain_Load);
-            ((System.ComponentModel.ISupportInitialize)(this.pbImg)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.axGrFingerXCtrl1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pbImg)).EndInit();
             this.ResumeLayout(false);
 
 		}
@@ -158,6 +174,8 @@ namespace Panchita
 
 		private void formMain_Load(object sender, System.EventArgs e)
 		{
+            SystemSounds.Asterisk.Play();
+            SystemSounds.Beep.Play();
     		int err;
             if (myUtil == null)
             {
@@ -438,7 +456,7 @@ namespace Panchita
         private void identified(uint id,int score)
         {
             DBClass db = DBClass.getDB();
-            Personal p = db.getPersonal(id);
+            Personal p = db.getPersonalFromHuella(id);
             String msg = "";
             if (p != null)
             {
@@ -461,6 +479,7 @@ namespace Panchita
                     enHuellaLeido(huellaID);
                 }
             }
+            SystemSounds.Beep.Play();
         }
 
         private void tiquear(uint id)

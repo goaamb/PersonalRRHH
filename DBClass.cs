@@ -262,26 +262,29 @@ public class DBClass{
     }
 
     public long insertarPersonal(string CI,string Paterno, string Materno,string Nombre) {
-        if (getPersonal(CI) == null)
+        if (CI.Trim() != "" && Paterno.Trim() != "" && Nombre.Trim() != "")
         {
-            try
+            if (getPersonal(CI) == null)
             {
-                MySqlCommand cmdInsert = new MySqlCommand("INSERT INTO Personal(ci,paterno,materno,nombre,fecha_ingreso) values(?ci,?paterno,?materno,?nombre,?fecha) ", _connection);
-                cmdInsert.Parameters.AddWithValue("?ci", CI.Trim());
-                cmdInsert.Parameters.AddWithValue("?paterno", Paterno.Trim());
-                cmdInsert.Parameters.AddWithValue("?materno", Materno.Trim());
-                cmdInsert.Parameters.AddWithValue("?nombre", Nombre.Trim());
-                cmdInsert.Parameters.AddWithValue("?fecha", DateTime.Now);
-
-                //execute query
-                if (_connection.State == ConnectionState.Open)
+                try
                 {
-                    cmdInsert.Prepare();
-                    cmdInsert.ExecuteNonQuery();
+                    MySqlCommand cmdInsert = new MySqlCommand("INSERT INTO Personal(ci,paterno,materno,nombre,fecha_ingreso) values(?ci,?paterno,?materno,?nombre,?fecha) ", _connection);
+                    cmdInsert.Parameters.AddWithValue("?ci", CI.Trim());
+                    cmdInsert.Parameters.AddWithValue("?paterno", Paterno.Trim());
+                    cmdInsert.Parameters.AddWithValue("?materno", Materno.Trim());
+                    cmdInsert.Parameters.AddWithValue("?nombre", Nombre.Trim());
+                    cmdInsert.Parameters.AddWithValue("?fecha", DateTime.Now);
+
+                    //execute query
+                    if (_connection.State == ConnectionState.Open)
+                    {
+                        cmdInsert.Prepare();
+                        cmdInsert.ExecuteNonQuery();
+                    }
+                    return cmdInsert.LastInsertedId;
                 }
-                return cmdInsert.LastInsertedId;
+                catch { };
             }
-            catch { };
         }
         return 0;
     }
@@ -361,5 +364,48 @@ public class DBClass{
             }
         }
         catch { };
+    }
+
+    internal Boolean eliminarHuella(uint hid)
+    {
+        try
+        {
+            MySqlCommand cmdDelete = new MySqlCommand("delete from huella where id=?hid", _connection);
+            cmdDelete.Parameters.AddWithValue("?hid", hid);
+
+            if (_connection.State == ConnectionState.Open)
+            {
+                cmdDelete.Prepare();
+                cmdDelete.ExecuteNonQuery();
+            }
+            return true;
+        }
+        catch
+        { };
+        return false;
+    }
+
+    internal Personal getPersonalFromHuella(uint id)
+    {
+        MySqlCommand cmdGetPersonal;
+        MySqlDataReader rs;
+
+        //setting up command 
+        cmdGetPersonal = new MySqlCommand("SELECT personal FROM huella where id=?id", _connection);
+        cmdGetPersonal.Parameters.AddWithValue("?id",id);
+        //execute query
+        if (_connection.State == ConnectionState.Open)
+        {
+            cmdGetPersonal.Prepare();
+            rs = cmdGetPersonal.ExecuteReader();
+            if (rs.HasRows)
+            {
+                rs.Read();
+                uint p = (uint)rs["personal"];
+                rs.Close();
+                return getPersonal(p);
+            }
+        }
+        return null;
     }
 }

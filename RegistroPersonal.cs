@@ -70,9 +70,18 @@ namespace Panchita
 
         private void btnEliminaDedo_Click(object sender, EventArgs e)
         {
-            DataTable da = (DataTable)dgPersonal.DataSource;
-            if (dgPersonal.SelectedRows.Count > 0) { }
+            if (dgPersonal.SelectedRows.Count > 0)
+            {
+                for (int i = 0; i < dgPersonal.SelectedRows.Count; i++)
+                {
+                    uint hid=(uint)dgPersonal.SelectedRows[i].Cells["Id"].Value;
+                    db.eliminarHuella(hid);
+                }
+                loadPersonalGrid(this.id);
+            }
+            else {
+                MessageBox.Show("Debe seleccionar por lo menos un item para que sea eliminado");
+            }
         }
-
     }
 }
