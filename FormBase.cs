@@ -58,10 +58,11 @@ namespace Panchita
 
         private  void Salir_Click(object Sender, EventArgs e)
         {
+            GC.Collect();
             formMain f = formMain.getInstance();
+            f.notifyIcon.Visible = false;
             f.Dispose();
             f.Close();
-            
             Application.Exit();
         }
 

@@ -6,6 +6,7 @@ using System.Windows.Forms;
 using System.Data;
 using GrFingerXLib;
 using System.Media;
+//using System.Media;
 
 namespace Panchita
 {
@@ -23,6 +24,9 @@ namespace Panchita
         private ComboBox cmbMano;
         public uint personal = 0;
         private PictureBox pictureBox1;
+        private Timer beeper;
+        private IContainer components;
+        private Timer mysqlTimer;
     
         public delegate void EnHuellaLeido(uint id);
 
@@ -49,6 +53,7 @@ namespace Panchita
 
         private void InitializeComponent()
 		{
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(formMain));
             this.btEnroll = new System.Windows.Forms.Button();
             this.lbLog = new System.Windows.Forms.ListBox();
@@ -57,6 +62,8 @@ namespace Panchita
             this.cmbMano = new System.Windows.Forms.ComboBox();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.pbImg = new System.Windows.Forms.PictureBox();
+            this.beeper = new System.Windows.Forms.Timer(this.components);
+            this.mysqlTimer = new System.Windows.Forms.Timer(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.axGrFingerXCtrl1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pbImg)).BeginInit();
@@ -143,6 +150,17 @@ namespace Panchita
             this.pbImg.TabIndex = 9;
             this.pbImg.TabStop = false;
             // 
+            // beeper
+            // 
+            this.beeper.Interval = 500;
+            this.beeper.Tag = "0";
+            this.beeper.Tick += new System.EventHandler(this.beeper_Tick);
+            // 
+            // mysqlTimer
+            // 
+            this.mysqlTimer.Interval = 1000;
+            this.mysqlTimer.Tick += new System.EventHandler(this.mysqlTimer_Tick);
+            // 
             // formMain
             // 
             this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
@@ -162,6 +180,7 @@ namespace Panchita
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.formMain_FormClosing);
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.formMain_Closed);
             this.Load += new System.EventHandler(this.formMain_Load);
+            this.MouseClick += new System.Windows.Forms.MouseEventHandler(this.formMain_MouseClick);
             ((System.ComponentModel.ISupportInitialize)(this.axGrFingerXCtrl1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pbImg)).EndInit();
@@ -174,26 +193,37 @@ namespace Panchita
 
 		private void formMain_Load(object sender, System.EventArgs e)
 		{
-            SystemSounds.Asterisk.Play();
-            SystemSounds.Beep.Play();
-    		int err;
-            if (myUtil == null)
-            {
-                myUtil = new Util(lbLog, pbImg, btEnroll);
-
-                err = myUtil.InitializeGrFinger(axGrFingerXCtrl1);
-                if (err < 0)
-                {
-                    myUtil.WriteError((GRConstants)err);
-                }
-                else
-                {
-                    myUtil.WriteLog("**GrFingerX Initialized Successfull**");
-                }
-            }
+            enableDevice();
             cmbDedo.SelectedIndex = 0;
             cmbMano.SelectedIndex = 0;
 		}
+
+        private void enableDevice()
+        {
+            int err;
+            if (myUtil == null)
+            {
+                myUtil = new Util(lbLog, pbImg, btEnroll);
+            }
+
+            err = myUtil.InitializeGrFinger(axGrFingerXCtrl1);
+            if (err < 0)
+            {
+                myUtil.WriteError((GRConstants)err);
+                if (err == Util.ERR_CANT_OPEN_BD)
+                {
+                    mysqlTimer.Enabled = true;
+                }
+                else
+                {
+                    mysqlTimer.Enabled = false;
+                }
+            }
+            else
+            {
+                myUtil.WriteLog("**GrFingerX Initialized Successfull**");
+            }
+        }
 
 
 		private void formMain_Closed(object sender, FormClosedEventArgs e)
@@ -466,7 +496,8 @@ namespace Panchita
             myUtil.WriteLog(msg);
             notifyIcon.BalloonTipText = msg;
             notifyIcon.ShowBalloonTip(50);
-            
+            beeper.Tag = 0;
+            beeper.Enabled = true;
             if (prepareEnroll)
             {
                 this.cmbDedo.Visible = false;
@@ -479,7 +510,6 @@ namespace Panchita
                     enHuellaLeido(huellaID);
                 }
             }
-            SystemSounds.Beep.Play();
         }
 
         private void tiquear(uint id)
@@ -516,6 +546,42 @@ namespace Panchita
             Show();
             enroll();
             Focus();
+        }
+
+        private void beeper_Tick(object sender, EventArgs e)
+        {
+            int t = (int)beeper.Tag;
+            switch (t)
+            {
+                case 1:
+                    SystemSounds.Asterisk.Play();
+                    beeper.Enabled = false;
+                    break;
+                default:
+                    SystemSounds.Asterisk.Play();
+                    break;
+            }
+            t++;
+            beeper.Tag = t;
+        }
+
+        private void formMain_MouseClick(object sender, MouseEventArgs e)
+        {
+            beeper.Tag = 0;
+            beeper.Enabled = true;
+        }
+        private void playSound(string path)
+        {
+            System.Media.SoundPlayer player =
+                new System.Media.SoundPlayer();
+            player.SoundLocation = path;
+            player.Load();
+            player.Play();
+        }
+
+        private void mysqlTimer_Tick(object sender, EventArgs e)
+        {
+            enableDevice();
         }
     }
 }

@@ -217,14 +217,9 @@ public class Util
 		GRConstants result;
 	  
 		_grfingerx = grfingerx;
-		//Check DataBase Class.
-		if (_DB == null)
-			_DB = DBClass.getDB();
-		//Open DataBase
-		if(_DB.openDB()==false) 
-		{
-			return ERR_CANT_OPEN_BD;
-		}
+        if (!openDatabase()) {
+            return ERR_CANT_OPEN_BD;
+        }
 
 		//Create a new Template
 		if (_tpt == null)
@@ -243,6 +238,15 @@ public class Util
         initialized = true;
 		return (int)_grfingerx.CapInitialize();
 	}
+
+    public Boolean openDatabase()
+    {
+        //Check DataBase Class.
+        if (_DB == null)
+            _DB = DBClass.getDB();
+        //Open DataBase
+        return _DB.openDB();
+    }
 
 	//  Finalizes library and close DB.
 	public void FinalizeUtil() {
