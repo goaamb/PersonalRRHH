@@ -6,7 +6,7 @@ using System.Windows.Forms;
 using System.Data;
 using GrFingerXLib;
 using System.Media;
-//using System.Media;
+using System.Collections.Generic;
 
 namespace Panchita
 {
@@ -27,6 +27,7 @@ namespace Panchita
         private Timer beeper;
         private IContainer components;
         private Timer mysqlTimer;
+        System.Threading.Thread hWS;
     
         public delegate void EnHuellaLeido(uint id);
 
@@ -37,6 +38,57 @@ namespace Panchita
 			InitializeComponent();
 		}
 
+        private void InitializeWebservice()
+        {
+            hWS = new System.Threading.Thread(actualizarCambiosBD);
+            hWS.Start();
+        }
+
+        private void actualizarCambiosBD() {
+            try
+            {
+                ProcesoWSDL.ProcesoWSDL pws = new ProcesoWSDL.ProcesoWSDL();
+
+                string lista=myUtil._DB.getImplodedPersonalCIList();
+
+
+                String []res = pws.WebserviceverificarPersonal(lista).Split(',');
+                List<List<string>> listaP = new List<List<string>>();
+                if (res != null && res.Length>0) {
+                    foreach (string ci in res)
+                    {
+                        if (listaP.Count < 10)
+                        {
+                            Personal p = myUtil._DB.getPersonal(ci.Trim());
+                            if (p != null)
+                            {
+                                listaP.Add(new List<string>());
+                                int i = listaP.Count - 1;
+                                listaP[i].Add(p.ci);
+                                listaP[i].Add(p.paterno);
+                                listaP[i].Add(p.materno);
+                                listaP[i].Add(p.nombre);
+                            }
+                        }
+                        else {
+                            break;
+                        }
+                    }
+                    List<string> aux = new List<string>();
+                    foreach (List<string> item in listaP)
+                    {
+                        aux.Add(string.Join("::-::",item.ToArray()));
+                    }
+                    string pRes = string.Join("--:--",aux.ToArray());
+                    pws.WebserviceguardarPersonal(pRes);
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+        }
+
 		protected override void Dispose( bool disposing )
 		{
 			if( disposing )
@@ -46,6 +98,9 @@ namespace Panchita
 					components.Dispose();
 				}
 			}
+            if (hWS != null) {
+                hWS.Abort();
+            }
 			base.Dispose( disposing );
 		}
 
@@ -194,6 +249,7 @@ namespace Panchita
 		private void formMain_Load(object sender, System.EventArgs e)
 		{
             enableDevice();
+            InitializeWebservice();
             cmbDedo.SelectedIndex = 0;
             cmbMano.SelectedIndex = 0;
 		}

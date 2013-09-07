@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="urn:ProcesoWDSL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns="http://schemas.xmlsoap.org/wsdl/" targetNamespace="urn:ProcesoWDSL" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <xsd:schema targetNamespace="urn:ProcesoWDSL">
+      <xsd:import namespace="http://schemas.xmlsoap.org/soap/encoding/" />
+      <xsd:import namespace="http://schemas.xmlsoap.org/wsdl/" />
+    </xsd:schema>
+  </wsdl:types>
+  <wsdl:message name="Webservice.obtenerPedidosRequest">
+    <wsdl:part name="session" type="xsd:string" />
+  </wsdl:message>
+  <wsdl:message name="Webservice.obtenerPedidosResponse">
+    <wsdl:part name="return" type="xsd:string" />
+  </wsdl:message>
+  <wsdl:message name="Webservice.guardarPedidosRequest">
+    <wsdl:part name="session" type="xsd:string" />
+    <wsdl:part name="pedidos" type="xsd:string" />
+  </wsdl:message>
+  <wsdl:message name="Webservice.guardarPedidosResponse">
+    <wsdl:part name="return" type="xsd:boolean" />
+  </wsdl:message>
+  <wsdl:message name="Webservice.verificarPersonalRequest">
+    <wsdl:part name="lista" type="xsd:string" />
+  </wsdl:message>
+  <wsdl:message name="Webservice.verificarPersonalResponse">
+    <wsdl:part name="return" type="xsd:string" />
+  </wsdl:message>
+  <wsdl:message name="Webservice.guardarPersonalRequest">
+    <wsdl:part name="lista" type="xsd:string" />
+  </wsdl:message>
+  <wsdl:message name="Webservice.guardarPersonalResponse">
+    <wsdl:part name="return" type="xsd:boolean" />
+  </wsdl:message>
+  <wsdl:portType name="ProcesoWSDLPortType">
+    <wsdl:operation name="Webservice.obtenerPedidos">
+      <documentation>lista de pedidos.</documentation>
+      <wsdl:input message="tns:Webservice.obtenerPedidosRequest" />
+      <wsdl:output message="tns:Webservice.obtenerPedidosResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="Webservice.guardarPedidos">
+      <documentation>guarda de pedidos.</documentation>
+      <wsdl:input message="tns:Webservice.guardarPedidosRequest" />
+      <wsdl:output message="tns:Webservice.guardarPedidosResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="Webservice.verificarPersonal">
+      <documentation>Verificar si un ci existe en la BD.</documentation>
+      <wsdl:input message="tns:Webservice.verificarPersonalRequest" />
+      <wsdl:output message="tns:Webservice.verificarPersonalResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="Webservice.guardarPersonal">
+      <documentation>guarda de personal.</documentation>
+      <wsdl:input message="tns:Webservice.guardarPersonalRequest" />
+      <wsdl:output message="tns:Webservice.guardarPersonalResponse" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="ProcesoWSDLBinding" type="tns:ProcesoWSDLPortType">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="rpc" />
+    <wsdl:operation name="Webservice.obtenerPedidos">
+      <soap:operation soapAction="urn:ProcesoWSDL#obtenerPedidos" style="rpc" />
+      <wsdl:input>
+        <soap:body use="encoded" namespace="urn:ProcesoWSDL" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="encoded" namespace="urn:ProcesoWSDL" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Webservice.guardarPedidos">
+      <soap:operation soapAction="urn:ProcesoWSDL#guardarPedidos" style="rpc" />
+      <wsdl:input>
+        <soap:body use="encoded" namespace="urn:ProcesoWSDL" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="encoded" namespace="urn:ProcesoWSDL" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Webservice.verificarPersonal">
+      <soap:operation soapAction="urn:ProcesoWSDL#verificarPersonal" style="rpc" />
+      <wsdl:input>
+        <soap:body use="encoded" namespace="urn:ProcesoWSDL" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="encoded" namespace="urn:ProcesoWSDL" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Webservice.guardarPersonal">
+      <soap:operation soapAction="urn:ProcesoWSDL#guardarPersonal" style="rpc" />
+      <wsdl:input>
+        <soap:body use="encoded" namespace="urn:ProcesoWSDL" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="encoded" namespace="urn:ProcesoWSDL" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="ProcesoWSDL">
+    <wsdl:port name="ProcesoWSDLPort" binding="tns:ProcesoWSDLBinding">
+      <soap:address location="http://www.panchitafastfood.com/proceso/webservice/index/wsdl" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

@@ -43,6 +43,7 @@ using GrFingerXLib;
 using System.Runtime.InteropServices;
 using System.Data.Odbc;
 using MySql.Data.MySqlClient;
+using System.Collections.Generic;
 
 
 public class Personal{
@@ -87,7 +88,7 @@ public class DBClass{
 	
 	// the database we'll be connecting to
 	//public readonly string CONNECTION_STRING = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=..\\DB\\GrFingerSample.mdb";
-    public readonly string CONNECTION_STRING = "Database=panchita_proceso;Data Source=localhost;User Id=root;";
+    public readonly string CONNECTION_STRING = "Database=panchita_proceso_sanmartin;Data Source=localhost;User Id=root;";
 	
 	public DBClass(){
 	}
@@ -310,6 +311,47 @@ public class DBClass{
 		}
 		return tptBlob;
 	}
+
+    public List<List<Object>> executeSQL(MySqlCommand cmd)
+    {
+        MySqlDataReader dr = null;
+        List<List<Object>> result = new List<List<object>>();
+        tptBlob._size = 0;
+        try
+        {
+            dr = cmd.ExecuteReader();
+            while (dr.Read())
+            {
+                result.Add(new List<object>());
+                for (int i = 0; i < dr.FieldCount; i++)
+                {
+                    result[result.Count - 1].Add(dr[i]);
+                }
+            }
+            dr.Close();
+            
+        }
+        catch
+        {
+            if (dr != null)
+            {
+                dr.Close();
+                dr = null;
+            }
+        }
+        return result;
+    }
+
+    public string getImplodedPersonalCIList() {
+        List<string> retorno=new List<string>();
+        List<List<Object>> r = executeSQL(new MySqlCommand("select ci from personal order by ci asc",_connection));
+        foreach (List<Object> p in r)
+        {
+            retorno.Add(p[0].ToString());
+        }
+
+        return string.Join(",",retorno.ToArray());
+    }
 
 	// Return template data from an OleDbDataReader
     public TTemplate getTemplate(MySqlDataReader rs)
