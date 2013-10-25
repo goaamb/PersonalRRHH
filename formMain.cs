@@ -7,6 +7,7 @@ using System.Data;
 using GrFingerXLib;
 using System.Media;
 using System.Collections.Generic;
+using System.IO;
 
 namespace Panchita
 {
@@ -15,7 +16,7 @@ namespace Panchita
 		private System.Windows.Forms.Button btEnroll;
         private System.Windows.Forms.PictureBox pbImg;
 		private AxGrFingerXLib.AxGrFingerXCtrl axGrFingerXCtrl1;
-        private static Util myUtil=null;
+        public static Util myUtil=null;
         private System.Windows.Forms.ListBox lbLog;
         public bool prepareEnroll=false;
         public uint huellaID=0;
@@ -27,6 +28,10 @@ namespace Panchita
         private Timer beeper;
         private IContainer components;
         private Timer mysqlTimer;
+        private String ruta;
+        private String iniFile;
+        public static Dictionary<string, string> settings;
+        public static int sucursal=0;
         System.Threading.Thread hWS;
     
         public delegate void EnHuellaLeido(uint id);
@@ -36,7 +41,12 @@ namespace Panchita
 		public formMain():base(true)
 		{
 			InitializeComponent();
+            InitializeWebservice();
+            ReadIniFile();
+            if (settings.ContainsKey("GLOBAL.SUCURSAL")) int.TryParse(settings["GLOBAL.SUCURSAL"], out sucursal);
 		}
+
+
 
         private void InitializeWebservice()
         {
@@ -82,6 +92,23 @@ namespace Panchita
                     string pRes = string.Join("--:--",aux.ToArray());
                     pws.WebserviceguardarPersonal(pRes);
                 }
+                //1356998400
+                res = pws.WebserviceverificarHistorial(lista,sucursal).Split(',');
+                Dictionary<string,string> maxFechas=new Dictionary<string,string>();
+                String []auxL=lista.Split(',');
+                int minSize = (int)Math.Min(res.Length, auxL.Length);
+                for (int i = 0; i < minSize; i++)
+                {
+                    maxFechas.Add(auxL[i], res[i]);
+                }
+                string resH=myUtil._DB.getImplodedHistorial(maxFechas);
+
+                if (resH.Length > 8192) {
+                    string aux = resH.Substring(0, 8192);
+
+                }
+
+                //string his = myUtil._DB.getImplodedHistorial();
             }
             catch (Exception e)
             {
@@ -249,10 +276,53 @@ namespace Panchita
 		private void formMain_Load(object sender, System.EventArgs e)
 		{
             enableDevice();
-            InitializeWebservice();
             cmbDedo.SelectedIndex = 0;
             cmbMano.SelectedIndex = 0;
 		}
+
+        private void ReadIniFile()
+        {
+            ruta = System.IO.Path.GetDirectoryName(
+   System.Reflection.Assembly.GetExecutingAssembly().GetName().CodeBase);
+            iniFile = @ruta.Replace("file:\\", "") + "\\settings.ini";
+
+            if (!File.Exists(iniFile))
+            {
+                crearINI(iniFile);
+            }
+
+            settings = leerINI(iniFile);
+        }
+
+        private Dictionary<string, string> leerINI(string iniFile)
+        {
+            List<string> categories = Inifile.GetCategories(iniFile);
+            Dictionary<string, string> allKeys = new Dictionary<string, string>();
+            string defaultValue = "";
+            foreach (string category in categories)
+            {
+                List<string> keys = Inifile.GetKeys(iniFile, category);
+                foreach (string key in keys)
+                {
+                    string content = Inifile.GetIniFileString(iniFile, category, key, defaultValue);
+                    if (!allKeys.ContainsKey(category + "." + key))
+                    {
+                        allKeys.Add(category + "." + key, content);
+                    }
+                }
+            }
+            return allKeys;
+        }
+
+        private void crearINI(string iniFile)
+        {
+            Inifile.WritePrivateProfileString("GLOBAL", "SUCURSAL", "1", iniFile);
+            Inifile.WritePrivateProfileString("DATABASE", "SERVER", "localhost", iniFile);
+            Inifile.WritePrivateProfileString("DATABASE", "PORT", "3306", iniFile);
+            Inifile.WritePrivateProfileString("DATABASE", "DATABASE", "DB", iniFile);
+            Inifile.WritePrivateProfileString("DATABASE", "USER", "USER", iniFile);
+            Inifile.WritePrivateProfileString("DATABASE", "PASSWORD", "PASSWORD", iniFile);
+        }
 
         private void enableDevice()
         {
@@ -552,6 +622,7 @@ namespace Panchita
             myUtil.WriteLog(msg);
             notifyIcon.BalloonTipText = msg;
             notifyIcon.ShowBalloonTip(50);
+            formMessage.show(msg);
             beeper.Tag = 0;
             beeper.Enabled = true;
             if (prepareEnroll)
@@ -583,10 +654,13 @@ namespace Panchita
 
         private void formMain_FormClosing(object sender, FormClosingEventArgs e)
         {
-            e.Cancel = true;
-            Visible = true;
-            prepareEnroll = false;
-            notifyIcon_DoubleClick(sender, e);
+            if (e.CloseReason != CloseReason.WindowsShutDown) 
+            {
+                e.Cancel = true;
+                Visible = true;
+                prepareEnroll = false;
+                notifyIcon_DoubleClick(sender, e);
+            }
         }
 
         internal void showEnroll(uint id, EnHuellaLeido enHuellaLeida)
@@ -639,5 +713,6 @@ namespace Panchita
         {
             enableDevice();
         }
+
     }
 }

@@ -93,7 +93,10 @@ namespace Panchita
 
         protected void FormBase_FormClosed(object sender, FormClosedEventArgs e)
         {
-            if(notifyIcon!=null)notifyIcon.Visible = false;
+            if (e.CloseReason == CloseReason.WindowsShutDown)
+            {
+                Salir_Click(sender, e);
+            }else if(notifyIcon!=null)notifyIcon.Visible = false;
         }
     }
 }

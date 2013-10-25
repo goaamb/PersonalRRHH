@@ -31,6 +31,13 @@
   <wsdl:message name="Webservice.guardarPersonalResponse">
     <wsdl:part name="return" type="xsd:boolean" />
   </wsdl:message>
+  <wsdl:message name="Webservice.verificarHistorialRequest">
+    <wsdl:part name="lista" type="xsd:string" />
+    <wsdl:part name="sucursal" type="xsd:int" />
+  </wsdl:message>
+  <wsdl:message name="Webservice.verificarHistorialResponse">
+    <wsdl:part name="return" type="xsd:string" />
+  </wsdl:message>
   <wsdl:portType name="ProcesoWSDLPortType">
     <wsdl:operation name="Webservice.obtenerPedidos">
       <documentation>lista de pedidos.</documentation>
@@ -51,6 +58,11 @@
       <documentation>guarda de personal.</documentation>
       <wsdl:input message="tns:Webservice.guardarPersonalRequest" />
       <wsdl:output message="tns:Webservice.guardarPersonalResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="Webservice.verificarHistorial">
+      <documentation>Verificar ultima fecha de marcacion</documentation>
+      <wsdl:input message="tns:Webservice.verificarHistorialRequest" />
+      <wsdl:output message="tns:Webservice.verificarHistorialResponse" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="ProcesoWSDLBinding" type="tns:ProcesoWSDLPortType">
@@ -84,6 +96,15 @@
     </wsdl:operation>
     <wsdl:operation name="Webservice.guardarPersonal">
       <soap:operation soapAction="urn:ProcesoWSDL#guardarPersonal" style="rpc" />
+      <wsdl:input>
+        <soap:body use="encoded" namespace="urn:ProcesoWSDL" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="encoded" namespace="urn:ProcesoWSDL" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Webservice.verificarHistorial">
+      <soap:operation soapAction="urn:ProcesoWSDL#verificarHistorial" style="rpc" />
       <wsdl:input>
         <soap:body use="encoded" namespace="urn:ProcesoWSDL" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
       </wsdl:input>

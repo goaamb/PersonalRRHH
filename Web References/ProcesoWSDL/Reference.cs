@@ -37,6 +37,8 @@ namespace Panchita.ProcesoWSDL {
         
         private System.Threading.SendOrPostCallback WebserviceguardarPersonalOperationCompleted;
         
+        private System.Threading.SendOrPostCallback WebserviceverificarHistorialOperationCompleted;
+        
         private bool useDefaultCredentialsSetExplicitly;
         
         /// <remarks/>
@@ -86,6 +88,9 @@ namespace Panchita.ProcesoWSDL {
         
         /// <remarks/>
         public event WebserviceguardarPersonalCompletedEventHandler WebserviceguardarPersonalCompleted;
+        
+        /// <remarks/>
+        public event WebserviceverificarHistorialCompletedEventHandler WebserviceverificarHistorialCompleted;
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapRpcMethodAttribute("urn:ProcesoWSDL#obtenerPedidos", RequestNamespace="urn:ProcesoWSDL", ResponseNamespace="urn:ProcesoWSDL")]
@@ -210,6 +215,38 @@ namespace Panchita.ProcesoWSDL {
         }
         
         /// <remarks/>
+        [System.Web.Services.Protocols.SoapRpcMethodAttribute("urn:ProcesoWSDL#verificarHistorial", RequestNamespace="urn:ProcesoWSDL", ResponseNamespace="urn:ProcesoWSDL")]
+        [return: System.Xml.Serialization.SoapElementAttribute("return")]
+        public string WebserviceverificarHistorial(string lista, int sucursal) {
+            object[] results = this.Invoke("WebserviceverificarHistorial", new object[] {
+                        lista,
+                        sucursal});
+            return ((string)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void WebserviceverificarHistorialAsync(string lista, int sucursal) {
+            this.WebserviceverificarHistorialAsync(lista, sucursal, null);
+        }
+        
+        /// <remarks/>
+        public void WebserviceverificarHistorialAsync(string lista, int sucursal, object userState) {
+            if ((this.WebserviceverificarHistorialOperationCompleted == null)) {
+                this.WebserviceverificarHistorialOperationCompleted = new System.Threading.SendOrPostCallback(this.OnWebserviceverificarHistorialOperationCompleted);
+            }
+            this.InvokeAsync("WebserviceverificarHistorial", new object[] {
+                        lista,
+                        sucursal}, this.WebserviceverificarHistorialOperationCompleted, userState);
+        }
+        
+        private void OnWebserviceverificarHistorialOperationCompleted(object arg) {
+            if ((this.WebserviceverificarHistorialCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.WebserviceverificarHistorialCompleted(this, new WebserviceverificarHistorialCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
         public new void CancelAsync(object userState) {
             base.CancelAsync(userState);
         }
@@ -328,6 +365,32 @@ namespace Panchita.ProcesoWSDL {
             get {
                 this.RaiseExceptionIfNecessary();
                 return ((bool)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.1")]
+    public delegate void WebserviceverificarHistorialCompletedEventHandler(object sender, WebserviceverificarHistorialCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.1")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class WebserviceverificarHistorialCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal WebserviceverificarHistorialCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public string Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((string)(this.results[0]));
             }
         }
     }

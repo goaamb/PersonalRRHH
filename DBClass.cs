@@ -44,6 +44,7 @@ using System.Runtime.InteropServices;
 using System.Data.Odbc;
 using MySql.Data.MySqlClient;
 using System.Collections.Generic;
+using Panchita;
 
 
 public class Personal{
@@ -88,9 +89,16 @@ public class DBClass{
 	
 	// the database we'll be connecting to
 	//public readonly string CONNECTION_STRING = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=..\\DB\\GrFingerSample.mdb";
-    public readonly string CONNECTION_STRING = "Database=panchita_proceso_sanmartin;Data Source=localhost;User Id=root;";
+    public string CONNECTION_STRING = "Database=panchita_proceso_sanmartin;Data Source=localhost;User Id=root;";
 	
 	public DBClass(){
+        string server = formMain.settings.ContainsKey("DATABASE.SERVER") && formMain.settings["DATABASE.SERVER"].Trim() != "" ? "Data Source=" + formMain.settings["DATABASE.SERVER"] : "";
+        string port = formMain.settings.ContainsKey("DATABASE.PORT") && formMain.settings["DATABASE.PORT"].Trim() != "" ? "," + formMain.settings["DATABASE.PORT"] : "";
+        string database = formMain.settings.ContainsKey("DATABASE.DATABASE") && formMain.settings["DATABASE.DATABASE"].Trim() != "" ? "Database=" + formMain.settings["DATABASE.DATABASE"] + ";" : "";
+        string user = formMain.settings.ContainsKey("DATABASE.USER") && formMain.settings["DATABASE.USER"].Trim() != "" ? "User Id=" + formMain.settings["DATABASE.USER"] + ";" : "";
+        string password = formMain.settings.ContainsKey("DATABASE.PASSWORD") && formMain.settings["DATABASE.PASSWORD"].Trim() != "" ? "Password=" + formMain.settings["DATABASE.PASSWORD"] + ";" : "";
+        CONNECTION_STRING = database + server +  port + ";" + user + password;
+        tptBlob = new TTemplate();
 	}
 
     public static DBClass getDB() {
@@ -111,7 +119,7 @@ public class DBClass{
 		catch{
 			return false;
 		}
-		tptBlob = new TTemplate();
+
 		return true;
 	}//END
 
@@ -449,5 +457,32 @@ public class DBClass{
             }
         }
         return null;
+    }
+
+    internal string getImplodedHistorial(Dictionary<string, string> fechas)
+    {
+        Dictionary<string, List<string>> datos=new Dictionary<string,List<string>>();
+        foreach (KeyValuePair<string, string> item in fechas)
+        {
+            long x = 0;
+            long.TryParse(item.Value, out x);
+            x += 1356998400;
+            List<List<Object>> r = executeSQL(new MySqlCommand("select (UNIX_TIMESTAMP(h.fecha)-1356998400) fecha from historial h inner join personal p on p.id=h.personal and p.ci='" + item.Key + "' where unix_timestamp(h.fecha)>" + x + " order by h.fecha", _connection));
+            List<string> res = new List<string>();
+            res.Add(item.Key);
+            foreach (List<Object> p in r)
+            {
+                x = 0;
+                long.TryParse(p[0].ToString(), out x);
+                res.Add(x.ToString());
+            }
+            datos.Add(item.Key, res);
+        }
+        List<string>resx=new List<string>();
+        foreach (KeyValuePair<string, List<string>> item in datos)
+        {
+            resx.Add(string.Join(",", item.Value.ToArray()));
+        }
+        return string.Join(";",resx.ToArray());
     }
 }
